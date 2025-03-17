@@ -1,0 +1,16 @@
+{
+    "fileTypes": [
+        ".py"
+    ],
+    "ignores": [
+        ".*",
+        "**/__pycache__",
+        "**/node_modules"
+    ],
+    "save_graph": {
+        "symbol_graph": "call_graph_symbol.dot",
+        "file_graph": "call_graph_file.dot",
+        "module_graph": "call_graph_module.dot"
+    },
+    "save_json": "call_graph.json"
+}

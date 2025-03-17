@@ -1,0 +1,35 @@
+digraph G {
+
+    A [label="Node A"];
+    B [label="Node B"];
+
+    subgraph cluster_1 {
+        label="Subgraph 1";
+        color=blue;
+
+        // 子图中的节点
+        C [label="Node C"];
+        D [label="Node D"];
+
+        // 子图内部的边
+        C -> D;
+    }
+
+    // 子图 cluster_2
+    subgraph cluster_2 {
+        label="Subgraph 2"; // 子图的标签
+        color=red;          // 子图边框颜色
+
+        // 子图中的节点
+        E [label="Node E"];
+        F [label="Node F"];
+
+        // 子图内部的边
+        E -> F;
+    }
+
+    // 主图中的边
+    A -> C;
+    B -> E;
+    D -> F;
+}
