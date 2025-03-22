@@ -1,0 +1,28 @@
+digraph G {
+    "main.ts" [label = "File: main.ts"];
+    subgraph "cluster_/home/lbaf23/code/repo-analyzer/examples/ts_example" {
+        label = "Module: ts_example";
+        "main.ts" [label="File: main.ts"];
+        subgraph "cluster_module_a" {
+            label = "Module: module_a";
+            "module_a/file_a.ts" [label="File: file_a.ts"];
+            subgraph "cluster_module_a/module_a1" {
+                label = "Module: module_a1";
+                "module_a/module_a1/file_a1.ts" [label="File: file_a1.ts"];
+            }
+        }
+        subgraph "cluster_module_b" {
+            label = "Module: module_b";
+            "module_b/file_b.ts" [label="File: file_b.ts"];
+        }
+        subgraph "cluster_module_c" {
+            label = "Module: module_c";
+            "module_c/file_c.ts" [label="File: file_c.ts"];
+        }
+    }
+    "main.ts" -> "main.ts" [];
+    "main.ts" -> "module_a/file_a.ts" [];
+    "main.ts" -> "module_a/module_a1/file_a1.ts" [];
+    "main.ts" -> "module_b/file_b.ts" [];
+    "main.ts" -> "module_c/file_c.ts" [];
+}

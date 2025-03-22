@@ -1,11 +1,10 @@
 {
     "fileTypes": [
-        ".py"
+        ".ts"
     ],
     "ignores": [
         ".*",
         "**/__pycache__",
-        "**/__init__.py",
         "**/node_modules"
     ],
     "save_graph": {

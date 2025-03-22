@@ -1,0 +1,291 @@
+{
+    "id": "ts_example",
+    "name": "ts_example",
+    "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+    "rootModule": {
+        "id": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+        "name": "ts_example",
+        "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+        "childFileIds": [
+            "main.ts"
+        ],
+        "childModuleIds": [
+            "module_a",
+            "module_b",
+            "module_c"
+        ],
+        "parentModuleId": "",
+        "callModuleIds": [
+            "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+            "module_a",
+            "module_a/module_a1",
+            "module_b",
+            "module_c"
+        ],
+        "isRoot": true
+    },
+    "modules": {
+        "module_a": {
+            "id": "module_a",
+            "name": "module_a",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/module_a",
+            "childFileIds": [
+                "module_a/file_a.ts"
+            ],
+            "childModuleIds": [
+                "module_a/module_a1"
+            ],
+            "parentModuleId": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+            "callModuleIds": [],
+            "isRoot": false
+        },
+        "module_a/module_a1": {
+            "id": "module_a/module_a1",
+            "name": "module_a1",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/module_a/module_a1",
+            "childFileIds": [
+                "module_a/module_a1/file_a1.ts"
+            ],
+            "childModuleIds": [],
+            "parentModuleId": "module_a",
+            "callModuleIds": [],
+            "isRoot": false
+        },
+        "module_b": {
+            "id": "module_b",
+            "name": "module_b",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/module_b",
+            "childFileIds": [
+                "module_b/file_b.ts"
+            ],
+            "childModuleIds": [],
+            "parentModuleId": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+            "callModuleIds": [],
+            "isRoot": false
+        },
+        "module_c": {
+            "id": "module_c",
+            "name": "module_c",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/module_c",
+            "childFileIds": [
+                "module_c/file_c.ts"
+            ],
+            "childModuleIds": [],
+            "parentModuleId": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+            "callModuleIds": [],
+            "isRoot": false
+        }
+    },
+    "files": {
+        "main.ts": {
+            "id": "main.ts",
+            "name": "main.ts",
+            "type": ".ts",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/main.ts",
+            "childSymbolIds": [
+                "main.ts:(5,0)-(24,1)",
+                "main.ts:(6,4)-(10,5)"
+            ],
+            "parentModuleId": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+            "callFileIds": [
+                "main.ts",
+                "module_a/file_a.ts",
+                "module_a/module_a1/file_a1.ts",
+                "module_b/file_b.ts",
+                "module_c/file_c.ts"
+            ]
+        },
+        "module_a/file_a.ts": {
+            "id": "module_a/file_a.ts",
+            "name": "file_a.ts",
+            "type": ".ts",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/module_a/file_a.ts",
+            "childSymbolIds": [
+                "module_a/file_a.ts:(0,0)-(2,1)"
+            ],
+            "parentModuleId": "module_a",
+            "callFileIds": []
+        },
+        "module_a/module_a1/file_a1.ts": {
+            "id": "module_a/module_a1/file_a1.ts",
+            "name": "file_a1.ts",
+            "type": ".ts",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/module_a/module_a1/file_a1.ts",
+            "childSymbolIds": [
+                "module_a/module_a1/file_a1.ts:(0,0)-(2,1)"
+            ],
+            "parentModuleId": "module_a/module_a1",
+            "callFileIds": []
+        },
+        "module_b/file_b.ts": {
+            "id": "module_b/file_b.ts",
+            "name": "file_b.ts",
+            "type": ".ts",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/module_b/file_b.ts",
+            "childSymbolIds": [
+                "module_b/file_b.ts:(1,0)-(8,1)",
+                "module_b/file_b.ts:(5,4)-(7,5)"
+            ],
+            "parentModuleId": "module_b",
+            "callFileIds": []
+        },
+        "module_c/file_c.ts": {
+            "id": "module_c/file_c.ts",
+            "name": "file_c.ts",
+            "type": ".ts",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/module_c/file_c.ts",
+            "childSymbolIds": [
+                "module_c/file_c.ts:(0,0)-(2,1)"
+            ],
+            "parentModuleId": "module_c",
+            "callFileIds": []
+        }
+    },
+    "symbols": {
+        "main.ts:(5,0)-(24,1)": {
+            "id": "main.ts:(5,0)-(24,1)",
+            "name": "main",
+            "kind": 11,
+            "type": "Function",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/main.ts",
+            "start_line": 5,
+            "start_character": 0,
+            "end_line": 24,
+            "end_character": 1,
+            "selection_start_line": 5,
+            "selection_start_character": 9,
+            "selection_end_line": 5,
+            "selection_end_character": 13,
+            "callSymbolIds": [
+                "main.ts:(6,4)-(10,5)",
+                "module_a/module_a1/file_a1.ts:(0,0)-(2,1)",
+                "module_b/file_b.ts:(1,0)-(8,1)",
+                "module_b/file_b.ts:(5,4)-(7,5)",
+                "module_c/file_c.ts:(0,0)-(2,1)"
+            ],
+            "parentFileId": "main.ts",
+            "parentSymbolId": "",
+            "childSymbolIds": [
+                "main.ts:(6,4)-(10,5)"
+            ]
+        },
+        "main.ts:(6,4)-(10,5)": {
+            "id": "main.ts:(6,4)-(10,5)",
+            "name": "subFunction",
+            "kind": 11,
+            "type": "Function",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/main.ts",
+            "start_line": 6,
+            "start_character": 4,
+            "end_line": 10,
+            "end_character": 5,
+            "selection_start_line": 6,
+            "selection_start_character": 13,
+            "selection_end_line": 6,
+            "selection_end_character": 24,
+            "callSymbolIds": [
+                "module_a/file_a.ts:(0,0)-(2,1)"
+            ],
+            "parentFileId": "main.ts",
+            "parentSymbolId": "main.ts:(5,0)-(24,1)",
+            "childSymbolIds": []
+        },
+        "module_a/file_a.ts:(0,0)-(2,1)": {
+            "id": "module_a/file_a.ts:(0,0)-(2,1)",
+            "name": "functionA",
+            "kind": 11,
+            "type": "Function",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/module_a/file_a.ts",
+            "start_line": 0,
+            "start_character": 0,
+            "end_line": 2,
+            "end_character": 1,
+            "selection_start_line": 0,
+            "selection_start_character": 16,
+            "selection_end_line": 0,
+            "selection_end_character": 25,
+            "callSymbolIds": [],
+            "parentFileId": "module_a/file_a.ts",
+            "parentSymbolId": "",
+            "childSymbolIds": []
+        },
+        "module_a/module_a1/file_a1.ts:(0,0)-(2,1)": {
+            "id": "module_a/module_a1/file_a1.ts:(0,0)-(2,1)",
+            "name": "functionA1",
+            "kind": 11,
+            "type": "Function",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/module_a/module_a1/file_a1.ts",
+            "start_line": 0,
+            "start_character": 0,
+            "end_line": 2,
+            "end_character": 1,
+            "selection_start_line": 0,
+            "selection_start_character": 16,
+            "selection_end_line": 0,
+            "selection_end_character": 26,
+            "callSymbolIds": [],
+            "parentFileId": "module_a/module_a1/file_a1.ts",
+            "parentSymbolId": "",
+            "childSymbolIds": []
+        },
+        "module_b/file_b.ts:(1,0)-(8,1)": {
+            "id": "module_b/file_b.ts:(1,0)-(8,1)",
+            "name": "ClassB",
+            "kind": 4,
+            "type": "Class",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/module_b/file_b.ts",
+            "start_line": 1,
+            "start_character": 0,
+            "end_line": 8,
+            "end_character": 1,
+            "selection_start_line": 1,
+            "selection_start_character": 13,
+            "selection_end_line": 1,
+            "selection_end_character": 19,
+            "callSymbolIds": [],
+            "parentFileId": "module_b/file_b.ts",
+            "parentSymbolId": "",
+            "childSymbolIds": [
+                "module_b/file_b.ts:(5,4)-(7,5)"
+            ]
+        },
+        "module_b/file_b.ts:(5,4)-(7,5)": {
+            "id": "module_b/file_b.ts:(5,4)-(7,5)",
+            "name": "functionB",
+            "kind": 5,
+            "type": "Method",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/module_b/file_b.ts",
+            "start_line": 5,
+            "start_character": 4,
+            "end_line": 7,
+            "end_character": 5,
+            "selection_start_line": 5,
+            "selection_start_character": 4,
+            "selection_end_line": 5,
+            "selection_end_character": 13,
+            "callSymbolIds": [],
+            "parentFileId": "module_b/file_b.ts",
+            "parentSymbolId": "module_b/file_b.ts:(1,0)-(8,1)",
+            "childSymbolIds": []
+        },
+        "module_c/file_c.ts:(0,0)-(2,1)": {
+            "id": "module_c/file_c.ts:(0,0)-(2,1)",
+            "name": "functionC",
+            "kind": 11,
+            "type": "Function",
+            "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example/module_c/file_c.ts",
+            "start_line": 0,
+            "start_character": 0,
+            "end_line": 2,
+            "end_character": 1,
+            "selection_start_line": 0,
+            "selection_start_character": 16,
+            "selection_end_line": 0,
+            "selection_end_character": 25,
+            "callSymbolIds": [],
+            "parentFileId": "module_c/file_c.ts",
+            "parentSymbolId": "",
+            "childSymbolIds": []
+        }
+    }
+}

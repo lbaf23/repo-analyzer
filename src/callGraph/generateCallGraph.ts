@@ -4,17 +4,19 @@ import * as fs from 'fs/promises';
 import ignore, { Ignore } from 'ignore';
 import { FileInfo, ModuleInfo, SymbolInfo, SymbolTypes, RepoConfig, RepoInfo, getModule, SYMBOLS_SET } from './callGraphTypes';
 import { generateGraph } from './buildGraph';
-import { readFile, writeFile, extractFileType } from './utils';
+import { readFile, writeFile, extractFileType, checkFileExists } from './utils';
+import { appendFile } from 'fs';
 
 
 async function waitForInitialDiagnostics(document: vscode.TextDocument): Promise<void> {
     return new Promise((resolve) => {
         // Listen for diagnostics changes for this document
         const listener = vscode.languages.onDidChangeDiagnostics((e) => {
-            if (e.uris.some(uri => uri.toString() === document.uri.toString())) {
-                listener.dispose();
-                resolve();
-            }
+
+            // if (e.uris.some(uri => uri.toString() === document.uri.toString())) {
+            listener.dispose();
+            resolve();
+            // }
         });
         // Check if diagnostics are already available
         if (vscode.languages.getDiagnostics(document.uri).length > 0) {
@@ -22,11 +24,35 @@ async function waitForInitialDiagnostics(document: vscode.TextDocument): Promise
             resolve();
         }
         // Optional: Add a timeout to avoid hanging indefinitely
-        setTimeout(() => {
-            listener.dispose();
-            resolve();
-        }, 5000); // 60-second timeout as a fallback
+        // setTimeout(() => {
+        //     listener.dispose();
+        //     resolve();
+        // }, 10000); // 10-second timeout as a fallback
     });
+}
+
+
+async function retryCommand<T>(
+    retries: number,
+    wait: number,
+    command: string,
+    ...args: any[]
+): Promise<T | undefined> {
+    let res: T | undefined;
+    let r = 0;
+    while (r < retries) {
+        res = await vscode.commands.executeCommand<T>(
+            command,
+            ...args
+        );
+        if (res !== undefined) {
+            break;
+        }
+        await new Promise(resolve => setTimeout(resolve, wait));
+        r ++;
+        console.log(`retry ...`);
+    }
+    return res;
 }
 
 
@@ -37,7 +63,9 @@ export async function generateCallGraph() {
     // load workspace
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders) {
-        vscode.window.showErrorMessage('No repository is open.');
+        const msg = 'No repository is open.';
+        vscode.window.showErrorMessage(msg);
+        outputChannel.appendLine(msg);
         return;
     }
 
@@ -69,7 +97,7 @@ export async function generateCallGraph() {
     }
 
     const rootModule: ModuleInfo = {
-        id: absPath,
+        id: '/',
         name: name,
         path: absPath,
 
@@ -102,21 +130,44 @@ export async function generateCallGraph() {
     const total_files = Object.keys(repoInfo.files).length;
     let read_files = 1;
     // resolve symbols
+
+
+
+
+    // open all files
+    // for (const file of Object.values(repoInfo.files)) {
+    //     const document = await vscode.workspace.openTextDocument(
+    //         vscode.Uri.file(file.path)
+    //     );
+    // }
+
+    // await new Promise((resolve) => setTimeout(resolve, 5000));
+
     for (const file of Object.values(repoInfo.files)) {
         outputChannel.appendLine(`>>> Read file ${read_files}/${total_files} ${file.path}`);
         const document = await vscode.workspace.openTextDocument(
             vscode.Uri.file(file.path)
         );
 
-        await waitForInitialDiagnostics(document); // Wait for language server readiness
+        // await waitForInitialDiagnostics(document); // Wait for language server readiness
 
-        const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+        // const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+        //     'vscode.executeDocumentSymbolProvider',
+        //     document.uri
+        // );
+
+        const symbols = await retryCommand<vscode.DocumentSymbol[]>(
+            20,
+            500,
             'vscode.executeDocumentSymbolProvider',
             document.uri
         );
-        if (!symbols) {
+
+        if (symbols === undefined) {
+            outputChannel.appendLine(`resolve failed.`);
             continue;
         }
+
         outputChannel.appendLine(`get ${symbols.length} symbols.`);
         await resolveFileSymbols(symbols, repoInfo, file, null);
 
@@ -134,50 +185,61 @@ export async function generateCallGraph() {
             vscode.Uri.file(file.path)
         );
 
-        let references = await vscode.commands.executeCommand<vscode.Location[]>(
+        let references = await retryCommand<vscode.Location[]>(
+            20,
+            500,
             'vscode.executeReferenceProvider',
             document.uri,
             new vscode.Position(symbol.selection_start_line, symbol.selection_start_character),
-            false,
+            false,            
+        );
+        // let references = await vscode.commands.executeCommand<vscode.Location[]>(
+        //     'vscode.executeReferenceProvider',
+        //     document.uri,
+        //     new vscode.Position(symbol.selection_start_line, symbol.selection_start_character),
+        //     false,
+        // );
+
+        if (references === undefined) {
+            outputChannel.appendLine(`resolve failed.`);
+            continue;
+        }
+
+        references = references.filter(ref => 
+            !(ref.uri.toString() === document.uri.toString() && 
+                ref.range.start.line === symbol.selection_start_line && 
+                ref.range.start.character === symbol.selection_start_character)
         );
 
-        if (references) {
-            references = references.filter(ref => 
-                !(ref.uri.toString() === document.uri.toString() && 
-                  ref.range.start.line === symbol.selection_start_line && 
-                  ref.range.start.character === symbol.selection_start_character)
-            );
+        outputChannel.appendLine(`get ${references.length} references.`);
 
-            outputChannel.appendLine(`get ${references.length} references.`);
+        for (const ref of references) {
+            const fileId = path.relative(repoPath, ref.uri.fsPath);
+            const refSymbol = findContainingSymbol(ref.range, repoInfo, fileId);
 
-            for (const ref of references) {
-                const fileId = path.relative(repoPath, ref.uri.fsPath);
-                const refSymbol = findContainingSymbol(ref.range, repoInfo, fileId);
+            outputChannel.appendLine(`ref: ${fileId} ${ref.range.start.line},${ref.range.start.character}-${ref.range.end.line},${ref.range.end.character}`);
 
-                outputChannel.appendLine(`ref: ${fileId} ${ref.range.start.line},${ref.range.start.character}-${ref.range.end.line},${ref.range.end.character}`);
+            if (!refSymbol) {
+                // Can't find the reference symbol !!!
+                continue;
+            } else {
+                // add symbol call
+                if (!refSymbol.callSymbolIds.includes(symbol.id)) {
+                    refSymbol.callSymbolIds.push(symbol.id);
+                }
 
-                if (!refSymbol) {
-                    // Can't find the reference symbol !!!
-                    continue;
-                } else {
-                    // add symbol call
-                    if (!refSymbol.callSymbolIds.includes(symbol.id)) {
-                        refSymbol.callSymbolIds.push(symbol.id);
-                    }
+                // add file call
+                const refFile = repoInfo.files[refSymbol.parentFileId];
+                const depFile = repoInfo.files[symbol.parentFileId];
+                if (!refFile.callFileIds.includes(depFile.id)) {
+                    refFile.callFileIds.push(depFile.id);
+                }
 
-                    // add file call
-                    const refFile = repoInfo.files[refSymbol.parentFileId];
-                    const depFile = repoInfo.files[symbol.parentFileId];
-                    if (!refFile.callFileIds.includes(depFile.id)) {
-                        refFile.callFileIds.push(depFile.id);
-                    }
-
-                    // add module call
-                    const refModule = getModule(repoInfo, refFile.parentModuleId);
-                    const depModule = getModule(repoInfo, depFile.parentModuleId);
-                    if (!refModule.callModuleIds.includes(depModule.id)) {
-                        refModule.callModuleIds.push(depModule.id);
-                    }
+                // add module call
+                const refModule = getModule(repoInfo, refFile.parentModuleId);
+                const depModule = getModule(repoInfo, depFile.parentModuleId);
+                if (!refModule.callModuleIds.includes(depModule.id)) {
+                    refModule.callModuleIds.push(depModule.id);
                 }
             }
         }
@@ -262,15 +324,6 @@ async function resolveFileSymbols(symbols: vscode.DocumentSymbol[], repoInfo: Re
 }
 
 
-async function checkFileExists(filePath: string): Promise<boolean> {
-    try {
-        await fs.access(filePath, fs.constants.F_OK);
-        return true;
-    } catch {
-        return false;
-    }
-}
-
 async function findFilesAndModules(
     repoConfig: RepoConfig,
     repoInfo: RepoInfo,
@@ -325,6 +378,7 @@ async function findFilesAndModules(
                 const new_file: FileInfo = {
                     id: relPath,
                     name: name,
+                    type: fileType,
                     path: absPath,
 
                     childSymbolIds: [],
@@ -348,6 +402,11 @@ function findContainingSymbol(refRange: vscode.Range, repoInfo: RepoInfo, fileId
     let smallestRange: vscode.Range | undefined;
 
     const file = repoInfo.files[fileId];
+
+    if (!file) {
+        // can't find file !!!
+        return undefined;
+    }
 
     for (const symbolId of file.childSymbolIds) {
         const symbol = repoInfo.symbols[symbolId];

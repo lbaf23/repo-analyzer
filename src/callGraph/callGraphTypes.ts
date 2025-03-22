@@ -30,6 +30,7 @@ export interface SymbolInfo {
 export interface FileInfo {
     id: string;
     name: string;
+    type: string;
     path: string;
 
     childSymbolIds: string[];

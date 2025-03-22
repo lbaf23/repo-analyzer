@@ -1,0 +1,13 @@
+digraph G {
+    "module_b" [label = "Module: module_b"];
+    "module_c" [label = "Module: module_c"];
+    subgraph "cluster_/home/lbaf23/code/repo-analyzer/examples/py_example" {
+        label = "Module: py_example";
+        "module_b" [label="Module: module_b"];
+        "module_c" [label="Module: module_c"];
+        subgraph "cluster_module_a" {
+            label = "Module: module_a";
+            "module_a/module_a1" [label="Module: module_a1"];
+        }
+    }
+}
