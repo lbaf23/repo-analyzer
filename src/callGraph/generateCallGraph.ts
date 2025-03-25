@@ -102,8 +102,6 @@ export async function generateCallGraph(context: vscode.ExtensionContext) {
     await db.open();
     const sql_path = path.join(context.extensionPath, 'src', 'callGraph', 'createTables.sql');
 
-    console.log(sql_path);
-
     await db.createTables(sql_path);
 
     const rootModule: ModuleInfo = {
