@@ -16,6 +16,10 @@
   },
   "activationEvents": [],
   "main": "./out/extension.js",
+  "files": [
+    "out",
+    "resources"
+  ],
   "contributes": {
     "commands": [
       {

@@ -100,7 +100,7 @@ export async function generateCallGraph(context: vscode.ExtensionContext) {
     const dbPath = path.join(repoPath, repoConfig.db);
     const db = new SQLite3DB(dbPath);
     await db.open();
-    const sql_path = path.join(context.extensionPath, 'src', 'callGraph', 'createTables.sql');
+    const sql_path = path.join(context.extensionPath, 'resources', 'createTables.sql');
 
     await db.createTables(sql_path);
 
