@@ -273,6 +273,11 @@ export async function generateCallGraph(context: vscode.ExtensionContext) {
         }
     }
 
+
+    await db.save();
+
+    outputChannel.appendLine(`SQLite file save to ${dbPath}`);
+
     await db.close();
 }
 

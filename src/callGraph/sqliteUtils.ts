@@ -15,9 +15,13 @@ export class SQLite3DB {
 
     public async open() {
         this.db = await open({
-            filename: this.dbPath,
+            filename: ':memory:',
             driver: sqlite3.Database
         });
+    }
+
+    public async save() {
+        await this.db?.run('VACUUM INTO ?', [this.dbPath]);
     }
 
     public async close() {
