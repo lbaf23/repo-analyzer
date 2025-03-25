@@ -3,7 +3,7 @@
     "name": "ts_example",
     "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
     "rootModule": {
-        "id": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+        "id": "/",
         "name": "ts_example",
         "path": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
         "childFileIds": [
@@ -16,7 +16,7 @@
         ],
         "parentModuleId": "",
         "callModuleIds": [
-            "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+            "/",
             "module_a",
             "module_a/module_a1",
             "module_b",
@@ -35,7 +35,7 @@
             "childModuleIds": [
                 "module_a/module_a1"
             ],
-            "parentModuleId": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+            "parentModuleId": "/",
             "callModuleIds": [],
             "isRoot": false
         },
@@ -59,7 +59,7 @@
                 "module_b/file_b.ts"
             ],
             "childModuleIds": [],
-            "parentModuleId": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+            "parentModuleId": "/",
             "callModuleIds": [],
             "isRoot": false
         },
@@ -71,7 +71,7 @@
                 "module_c/file_c.ts"
             ],
             "childModuleIds": [],
-            "parentModuleId": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+            "parentModuleId": "/",
             "callModuleIds": [],
             "isRoot": false
         }
@@ -86,7 +86,7 @@
                 "main.ts:(5,0)-(24,1)",
                 "main.ts:(6,4)-(10,5)"
             ],
-            "parentModuleId": "/home/lbaf23/code/repo-analyzer/examples/ts_example",
+            "parentModuleId": "/",
             "callFileIds": [
                 "main.ts",
                 "module_a/file_a.ts",

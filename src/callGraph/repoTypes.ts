@@ -1,4 +1,3 @@
-import { Interface } from 'mocha';
 import * as vscode from 'vscode';
 
 
@@ -84,9 +83,10 @@ export interface RepoConfigSaveGraph {
 export interface RepoConfig {
     fileTypes: string[];
     ignores: string[];
+    db: string,
 
-    save_graph: RepoConfigSaveGraph,
-    save_json: string;
+    save_graph?: RepoConfigSaveGraph,
+    save_json?: string;
 }
 
 

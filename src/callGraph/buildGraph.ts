@@ -1,4 +1,4 @@
-import { SymbolInfo, FileInfo, ModuleInfo, RepoInfo } from "./callGraphTypes";
+import { SymbolInfo, FileInfo, ModuleInfo, RepoInfo } from "./repoTypes";
 
 
 class GraphNode {

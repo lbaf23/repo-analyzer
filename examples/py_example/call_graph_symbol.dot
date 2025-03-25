@@ -1,5 +1,5 @@
 digraph G {
-    subgraph "cluster_/home/lbaf23/code/repo-analyzer/examples/py_example" {
+    subgraph "cluster_/" {
         label = "Module: py_example";
         subgraph "cluster_module_a" {
             label = "Module: module_a";

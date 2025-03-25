@@ -3,7 +3,7 @@
     "name": "py_example",
     "path": "/home/lbaf23/code/repo-analyzer/examples/py_example",
     "rootModule": {
-        "id": "/home/lbaf23/code/repo-analyzer/examples/py_example",
+        "id": "/",
         "name": "py_example",
         "path": "/home/lbaf23/code/repo-analyzer/examples/py_example",
         "childFileIds": [
@@ -16,7 +16,7 @@
         ],
         "parentModuleId": "",
         "callModuleIds": [
-            "/home/lbaf23/code/repo-analyzer/examples/py_example",
+            "/",
             "module_a",
             "module_a/module_a1",
             "module_b",
@@ -35,7 +35,7 @@
             "childModuleIds": [
                 "module_a/module_a1"
             ],
-            "parentModuleId": "/home/lbaf23/code/repo-analyzer/examples/py_example",
+            "parentModuleId": "/",
             "callModuleIds": [],
             "isRoot": false
         },
@@ -59,7 +59,7 @@
                 "module_b/file_b.py"
             ],
             "childModuleIds": [],
-            "parentModuleId": "/home/lbaf23/code/repo-analyzer/examples/py_example",
+            "parentModuleId": "/",
             "callModuleIds": [],
             "isRoot": false
         },
@@ -71,7 +71,7 @@
                 "module_c/file_c.py"
             ],
             "childModuleIds": [],
-            "parentModuleId": "/home/lbaf23/code/repo-analyzer/examples/py_example",
+            "parentModuleId": "/",
             "callModuleIds": [],
             "isRoot": false
         }
@@ -86,7 +86,7 @@
                 "main.py:(6,0)-(24,23)",
                 "main.py:(7,4)-(10,29)"
             ],
-            "parentModuleId": "/home/lbaf23/code/repo-analyzer/examples/py_example",
+            "parentModuleId": "/",
             "callFileIds": [
                 "main.py",
                 "module_a/file_a.py",

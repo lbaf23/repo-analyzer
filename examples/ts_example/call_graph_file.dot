@@ -1,6 +1,6 @@
 digraph G {
     "main.ts" [label = "File: main.ts"];
-    subgraph "cluster_/home/lbaf23/code/repo-analyzer/examples/ts_example" {
+    subgraph "cluster_/" {
         label = "Module: ts_example";
         "main.ts" [label="File: main.ts"];
         subgraph "cluster_module_a" {

@@ -4,9 +4,9 @@
     ],
     "ignores": [
         ".*",
-        "**/__pycache__",
         "**/node_modules"
     ],
+    "db": "repo.db",
     "save_graph": {
         "symbol_graph": "call_graph_symbol.dot",
         "file_graph": "call_graph_file.dot",

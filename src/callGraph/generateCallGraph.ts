@@ -2,34 +2,34 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import ignore, { Ignore } from 'ignore';
-import { FileInfo, ModuleInfo, SymbolInfo, SymbolTypes, RepoConfig, RepoInfo, getModule, SYMBOLS_SET } from './callGraphTypes';
+import { FileInfo, ModuleInfo, SymbolInfo, SymbolTypes, RepoConfig, RepoInfo, getModule, SYMBOLS_SET } from './repoTypes';
 import { generateGraph } from './buildGraph';
 import { readFile, writeFile, extractFileType, checkFileExists } from './utils';
-import { appendFile } from 'fs';
+import { SQLite3DB } from './sqliteUtils';
 
 
-async function waitForInitialDiagnostics(document: vscode.TextDocument): Promise<void> {
-    return new Promise((resolve) => {
-        // Listen for diagnostics changes for this document
-        const listener = vscode.languages.onDidChangeDiagnostics((e) => {
+// async function waitForInitialDiagnostics(document: vscode.TextDocument): Promise<void> {
+//     return new Promise((resolve) => {
+//         // Listen for diagnostics changes for this document
+//         const listener = vscode.languages.onDidChangeDiagnostics((e) => {
 
-            // if (e.uris.some(uri => uri.toString() === document.uri.toString())) {
-            listener.dispose();
-            resolve();
-            // }
-        });
-        // Check if diagnostics are already available
-        if (vscode.languages.getDiagnostics(document.uri).length > 0) {
-            listener.dispose();
-            resolve();
-        }
-        // Optional: Add a timeout to avoid hanging indefinitely
-        // setTimeout(() => {
-        //     listener.dispose();
-        //     resolve();
-        // }, 10000); // 10-second timeout as a fallback
-    });
-}
+//             // if (e.uris.some(uri => uri.toString() === document.uri.toString())) {
+//             listener.dispose();
+//             resolve();
+//             // }
+//         });
+//         // Check if diagnostics are already available
+//         if (vscode.languages.getDiagnostics(document.uri).length > 0) {
+//             listener.dispose();
+//             resolve();
+//         }
+//         // Optional: Add a timeout to avoid hanging indefinitely
+//         // setTimeout(() => {
+//         //     listener.dispose();
+//         //     resolve();
+//         // }, 10000); // 10-second timeout as a fallback
+//     });
+// }
 
 
 async function retryCommand<T>(
@@ -56,7 +56,7 @@ async function retryCommand<T>(
 }
 
 
-export async function generateCallGraph() {
+export async function generateCallGraph(context: vscode.ExtensionContext) {
     const outputChannel = vscode.window.createOutputChannel('Repo Analyzer Output');
     outputChannel.show();
 
@@ -87,6 +87,7 @@ export async function generateCallGraph() {
             file_graph: "call_graph_file.dot",
             module_graph: "call_graph_module.dot"
         },
+        db: "repo.db",
         save_json: "call_graph.json",
     };
     const repoConfigPath = path.join(repoPath, '.repoconfig.json');
@@ -96,8 +97,17 @@ export async function generateCallGraph() {
         outputChannel.appendLine(`Read repo config: ${content}`);
     }
 
+    const dbPath = path.join(repoPath, repoConfig.db);
+    const db = new SQLite3DB(dbPath);
+    await db.open();
+    const sql_path = path.join(context.extensionPath, 'src', 'callGraph', 'createTables.sql');
+
+    console.log(sql_path);
+
+    await db.createTables(sql_path);
+
     const rootModule: ModuleInfo = {
-        id: '/',
+        id: "/",
         name: name,
         path: absPath,
 
@@ -120,41 +130,25 @@ export async function generateCallGraph() {
         symbols: {}
     };
 
+    await db.insertModule(rootModule);
+    await db.updateRepoInfo(repoInfo);
+
     let msg: string = `Start generating call graph for repository ${repoPath}.`;
     vscode.window.showInformationMessage(msg);
     outputChannel.appendLine(msg);
 
     // resolve all files and dirs
-    await findFilesAndModules(repoConfig, repoInfo, rootModule, repoPath, outputChannel);
+    await findFilesAndModules(repoConfig, repoInfo, rootModule, repoPath, outputChannel, db);
 
     const total_files = Object.keys(repoInfo.files).length;
     let read_files = 1;
     // resolve symbols
-
-
-
-
-    // open all files
-    // for (const file of Object.values(repoInfo.files)) {
-    //     const document = await vscode.workspace.openTextDocument(
-    //         vscode.Uri.file(file.path)
-    //     );
-    // }
-
-    // await new Promise((resolve) => setTimeout(resolve, 5000));
 
     for (const file of Object.values(repoInfo.files)) {
         outputChannel.appendLine(`>>> Read file ${read_files}/${total_files} ${file.path}`);
         const document = await vscode.workspace.openTextDocument(
             vscode.Uri.file(file.path)
         );
-
-        // await waitForInitialDiagnostics(document); // Wait for language server readiness
-
-        // const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
-        //     'vscode.executeDocumentSymbolProvider',
-        //     document.uri
-        // );
 
         const symbols = await retryCommand<vscode.DocumentSymbol[]>(
             20,
@@ -169,7 +163,7 @@ export async function generateCallGraph() {
         }
 
         outputChannel.appendLine(`get ${symbols.length} symbols.`);
-        await resolveFileSymbols(symbols, repoInfo, file, null);
+        await resolveFileSymbols(symbols, repoInfo, file, null, db);
 
         read_files ++;
     }
@@ -193,12 +187,6 @@ export async function generateCallGraph() {
             new vscode.Position(symbol.selection_start_line, symbol.selection_start_character),
             false,            
         );
-        // let references = await vscode.commands.executeCommand<vscode.Location[]>(
-        //     'vscode.executeReferenceProvider',
-        //     document.uri,
-        //     new vscode.Position(symbol.selection_start_line, symbol.selection_start_character),
-        //     false,
-        // );
 
         if (references === undefined) {
             outputChannel.appendLine(`resolve failed.`);
@@ -226,6 +214,8 @@ export async function generateCallGraph() {
                 // add symbol call
                 if (!refSymbol.callSymbolIds.includes(symbol.id)) {
                     refSymbol.callSymbolIds.push(symbol.id);
+
+                    await db.insertSymbolCallSymbol(refSymbol.id, symbol.id);
                 }
 
                 // add file call
@@ -233,6 +223,8 @@ export async function generateCallGraph() {
                 const depFile = repoInfo.files[symbol.parentFileId];
                 if (!refFile.callFileIds.includes(depFile.id)) {
                     refFile.callFileIds.push(depFile.id);
+
+                    await db.insertFileCallFile(refFile.id, depFile.id);
                 }
 
                 // add module call
@@ -240,6 +232,8 @@ export async function generateCallGraph() {
                 const depModule = getModule(repoInfo, depFile.parentModuleId);
                 if (!refModule.callModuleIds.includes(depModule.id)) {
                     refModule.callModuleIds.push(depModule.id);
+
+                    await db.insertModuleCallModule(refModule.id, depModule.id);
                 }
             }
         }
@@ -280,10 +274,12 @@ export async function generateCallGraph() {
             outputChannel.appendLine(`Module level call graph figure generated successfully at ${figurePath}`);
         }
     }
+
+    await db.close();
 }
 
 
-async function resolveFileSymbols(symbols: vscode.DocumentSymbol[], repoInfo: RepoInfo, parentFile: FileInfo, parentSymbol: SymbolInfo | null = null): Promise<void> {
+async function resolveFileSymbols(symbols: vscode.DocumentSymbol[], repoInfo: RepoInfo, parentFile: FileInfo, parentSymbol: SymbolInfo | null = null, db: SQLite3DB): Promise<void> {
     for (const symbol of symbols) {
         // skip symbols
         if (!SYMBOLS_SET.has(symbol.kind)) {
@@ -313,13 +309,19 @@ async function resolveFileSymbols(symbols: vscode.DocumentSymbol[], repoInfo: Re
             parentSymbolId: parentSymbol === null ? "" : parentSymbol.id,
             childSymbolIds: []
         };
+
+        await db.insertSymbol(new_symbol);
+        await db.insertSymbolInFile(parentFile.id, new_symbol.id);
+
         if (parentSymbol !== null) {
+            await db.insertSymbolInSymbol(parentSymbol.id, new_symbol.id);
+
             parentSymbol.childSymbolIds.push(new_symbol.id);
         }
         parentFile.childSymbolIds.push(new_symbol.id);
 
         repoInfo.symbols[new_symbol.id] = new_symbol;
-        resolveFileSymbols(symbol.children, repoInfo, parentFile, new_symbol);
+        resolveFileSymbols(symbol.children, repoInfo, parentFile, new_symbol, db);
     }
 }
 
@@ -329,7 +331,8 @@ async function findFilesAndModules(
     repoInfo: RepoInfo,
     parentModule: ModuleInfo,
     repoPath: string,
-    outputChannel: vscode.OutputChannel
+    outputChannel: vscode.OutputChannel,
+    db: SQLite3DB
 ): Promise<void> {
     const ig: Ignore = ignore().add(repoConfig.ignores);
 
@@ -366,9 +369,13 @@ async function findFilesAndModules(
                 callModuleIds: [],
                 isRoot: false
             };
+
+            await db.insertModule(new_module);
+            await db.insertModuleInModule(parentModule.id, new_module.id);
+
             repoInfo.modules[new_module.id] = new_module;
             parentModule.childModuleIds.push(new_module.id);
-            await findFilesAndModules(repoConfig, repoInfo, new_module, repoPath, outputChannel);
+            await findFilesAndModules(repoConfig, repoInfo, new_module, repoPath, outputChannel, db);
         } else {
             // is file
             const fileType = extractFileType(entry.name);
@@ -386,6 +393,9 @@ async function findFilesAndModules(
 
                     callFileIds: []
                 };
+                await db.insertFile(new_file);
+                await db.insertFileInModule(parentModule.id, new_file.id);
+
                 repoInfo.files[new_file.id] = new_file;
                 parentModule.childFileIds.push(new_file.id);
             }

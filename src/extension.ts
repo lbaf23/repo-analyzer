@@ -9,7 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "repo-analyzer" is now active!');
 
 	const disposable = vscode.commands.registerCommand('repo-analyzer.generateCallGraph', async () => {
-		await generateCallGraph();
+		await generateCallGraph(context);
 	});
 
 	context.subscriptions.push(disposable);
