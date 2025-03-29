@@ -1,0 +1,10 @@
+.vscode
+.idea
+
+
+**/__pycache__
+
+
+repo.db
+call_graph_*.dot
+call_graph_*.json

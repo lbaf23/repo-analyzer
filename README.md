@@ -16,6 +16,12 @@ F5
 F1 -> "Repo Analyzer: Generate Call Graph"
 
 
+### Build
+
+```bash
+vsce package
+```
+
 ## Features
 
 - Generate a function call graph and save it as a DOT(graphviz) file.

@@ -1,0 +1,9 @@
+.vscode
+.idea
+
+node_modules
+
+repo.db
+call_graph_*.dot
+call_graph_*.json
+

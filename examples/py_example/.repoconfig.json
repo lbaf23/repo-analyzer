@@ -8,11 +8,5 @@
         "**/__init__.py",
         "**/node_modules"
     ],
-    "db": "repo.db",
-    "save_graph": {
-        "symbol_graph": "call_graph_symbol.dot",
-        "file_graph": "call_graph_file.dot",
-        "module_graph": "call_graph_module.dot"
-    },
-    "save_json": "call_graph.json"
+    "db": "repo.db"
 }
